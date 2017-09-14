@@ -1,0 +1,240 @@
+
+<html>
+    <head>
+        <script src="lib/three.min.js"></script>
+        <script src="lib/CanvasRenderer.js"></script>
+        <script src="lib/Projector.js"></script>
+        <script src="lib/jquery-3.1.1.min.js"></script>
+        <script src="lib/OBJLoader.js"></script>
+        <script src="lib/MTLLoader.js"></script>
+        <style>
+            #selectorcolor{position:absolute;z-index:1000;top:10px;left:10px;width:300px;height:300px;}
+            .cuadrocolor{width:50px;height:50px;border:1px solid black;}
+        </style>
+    </head>
+    <body>
+        <div id="selectorcolor">
+            <div class="cuadrocolor" style="background:red;" color="rojo"></div>
+            <div class="cuadrocolor" style="background:blue;" color="azul"></div>
+            <div class="cuadrocolor" style="background:green;" color="verde"></div>
+            <div class="cuadrocolor" style="background:yellow;" color="amarillo"></div>
+            
+        </div>
+        <script>
+            var angulo = 0;
+            var posx = 0;
+            var posz = 0;
+            var posy = 0;
+            var alien = new THREE.Mesh();
+            var aliencabeza = new THREE.Mesh();
+            var mtlLoader = new THREE.MTLLoader();
+            init();
+            animate();
+            
+            $(document).ready(function(){
+                $(window).resize(function(){
+                    
+                    console.log("reescalando")
+                    camera.fov = window.innerWidth/30
+                    camera.updateProjectionMatrix()
+                    console.log(camera.fov)
+                })
+             $(document).keydown(function(event){
+                    console.log("tecla")
+                    if ( event.which == 37 ) {
+                         posx--;
+                      }
+                       if ( event.which == 39 ) {
+                         posx++
+                      }
+                      if ( event.which == 38 ) {
+                         posz++
+                      }
+                      if ( event.which == 40 ) {
+                         posz--
+                      }
+                    
+                })
+                $(".cuadrocolor").click(function(){
+                    //console.log(mtlLoader)
+                   // var nuevomaterial = new THREE.MeshPhongMaterial({color:0xff0000})
+                   // alien.material = nuevomaterial;
+                   //escena.remove(aliencabeza);
+                   switch($(this).attr("color")){
+                       case "rojo":material4 = new THREE.MeshPhongMaterial({color:0xff0000});break;
+                       case "verde":material4 = new THREE.MeshPhongMaterial({color:0x00ff00});break;
+                       case "azul":material4 = new THREE.MeshPhongMaterial({color:0x0000ff});break;
+                       case "amarillo":material4 = new THREE.MeshPhongMaterial({color:0xffff00});break;
+                       
+                   }
+                   console.log(aliencabeza)
+                   alien.traverse(function(child){
+                       if(child instanceof THREE.Mesh){
+                           if(child.name == "Tronco"){
+                                //child.material = material4;
+                                //child.position.x += 10;
+                                //alien.remove(child)
+                                //console.log(child.name)
+                                console.log(child.material)
+                                child.material.specular['r'] = 1;
+                                child.material.specular['g'] = 1;
+                                child.material.specular['b'] = 1;
+                                child.material.wireframe = true
+                           }
+                          
+                       }
+                   })
+                  
+                    /*/////////////AQUI VOY A IMPORTAR UNA LIBRERIA OBJ/////////////*/
+                    /*
+                   // Creo un gestor de carga (si os fijais mas abajo vereis que es necesario)
+                   var manager = new THREE.LoadingManager();
+                   // Creo un nuevo material
+                   
+                   // Sobre el gestor, cargo un cargador de OBJ
+                   var loader = new THREE.OBJLoader(manager)
+                   // Sobre el cargador, cargo el modelo concreto OBJ
+                   loader.load("mtl/aliencabeza.obj",function(object){
+                       object.traverse( function ( child ) {
+    						if ( child instanceof THREE.Mesh ) {
+    						    // Si es hijo de malla 3D, aplicale este material
+    							child.material = material4;
+    						}
+    					} );
+    					// Transforma el modelo 
+    					object.scale.x = 10;
+						object.scale.y = 10;
+						object.scale.z = 10;
+    				
+    					aliencabeza = object
+    					// Añadelo a la escena
+    					escena.add(aliencabeza);
+                   },onProgress,onError)
+                   // Esto es algo que ejecutamos mientras se carga
+                   function onProgress(){}
+                   // Esto se lanza si hay algun error en la carga
+                   function onError(){}*/
+               /*/////////////AQUI VOY A IMPORTAR UNA LIBRERIA/////////////*/
+                  // $("#ajax").load("guardamaterial.php?material="+$(this).attr("color"))
+                })
+            })
+            function init(){
+                // Dentro del documento, creo un elemento nuevo llamado div
+               container = document.createElement("div");
+               // Añado el contenedor al documento
+               document.body.appendChild(container)
+               // Creo una nueva camara YA en el mundo 3D
+               camera = new THREE.PerspectiveCamera(40,1.3,1,1000);
+               // Ahora le digo a la camara DONDE esta
+               camera.position.x = 100;
+               camera.position.y = 0;
+               camera.position.z = 200;
+               camera.rotation.y = 0+Math.PI/8
+               
+               // Ahora quiero una escena 3D - La escena 3D es la que lo recoge todo
+               escena = new THREE.Scene();
+              
+               
+               /*/////////////AQUI VOY A IMPORTAR UNA LIBRERIA OBJ/////////////*/
+               
+                    
+                    mtlLoader.load( 'mtl/alien.mtl', function( materials ) {
+
+        					materials.preload();
+        
+        					var objLoader = new THREE.OBJLoader();
+        					objLoader.setMaterials( materials );
+        					
+        					objLoader.load( 'mtl/alien.obj', function ( object ) {
+        
+        						//object.position.y = - 95;
+        						object.scale.x = 10;
+        						object.scale.y = 10;
+        						object.scale.z = 10;
+        						alien = object
+        						escena.add( alien );
+        						
+        
+        					}, onProgress, onError );
+        
+        				});
+                    
+                  
+                   // Esto es algo que ejecutamos mientras se carga
+                   function onProgress(){}
+                   // Esto se lanza si hay algun error en la carga
+                   function onError(){}
+               /*/////////////AQUI VOY A IMPORTAR UNA LIBRERIA/////////////*/
+               
+               /*/////////////AQUI VOY A IMPORTAR UNA LIBRERIA OBJ/////////////*/
+               
+                    
+                    mtlLoader.load( 'mtl/aliencabeza.mtl', function( materials ) {
+
+        					materials.preload();
+        
+        					var objLoader = new THREE.OBJLoader();
+        					objLoader.setMaterials( materials );
+        					
+        					objLoader.load( 'mtl/aliencabeza.obj', function ( object ) {
+        
+        						//object.position.y = - 95;
+        						object.scale.x = 10;
+        						object.scale.y = 10;
+        						object.scale.z = 10;
+        						aliencabeza = object
+        						escena.add( aliencabeza );
+        						
+        
+        					}, onProgress, onError );
+        
+        				});
+                    
+                  
+                   // Esto es algo que ejecutamos mientras se carga
+                   function onProgress(){}
+                   // Esto se lanza si hay algun error en la carga
+                   function onError(){}
+               /*/////////////AQUI VOY A IMPORTAR UNA LIBRERIA/////////////*/
+               
+              // Pues vale Elias, vamos a crear una luz
+              luz = new THREE.PointLight( 0xffffff, 2, 1000 );
+              luz.position.set( 100, 100, 100 );
+                escena.add( luz );
+              
+               
+               // De los renderizadores disponibles en Three, voy a usar uno que de momento no usa aceleración 3D
+               //renderer = new THREE.CanvasRenderer();
+               renderer = new THREE.WebGLRenderer();
+               // El color de fondo es gris
+               renderer.setClearColor(0xf0f0f0);
+               // Pongo el pixel aspect ratio
+               renderer.setPixelRatio(1);
+               // Le digo el tamaño de la ventana
+               renderer.setSize(800,600);
+               // Añadimos el renderizador al HTML
+               container.appendChild(renderer.domElement)
+               
+            }
+            
+            function animate(){
+               //mono.rotation.x = angulo;
+               //mono.rotation.y = angulo;
+                
+                // Cada vez que pases por aqui aumenta un poco el angulo
+                angulo += 0.01;
+                // Y ahora actualizame la rotación de la caja
+               
+                // Ejecuta animate de nuevo cuando puedas
+                requestAnimationFrame(animate);
+                // Ejecuta el render
+                render();
+            }
+            function render(){
+                // Esta es la linea que hace toda la magia
+                renderer.render(escena,camera);
+                
+            }
+        </script>
+    </body>
+</html>

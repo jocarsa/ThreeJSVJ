@@ -1,0 +1,36 @@
+<html>
+    <head>
+        <script src="lib/jquery-3.1.1.min.js"></script>
+    </head>
+    <body>
+        <div id="coordenadas"></div>
+        <div id="coordenadas2"></div>
+        <script>
+        var mitadx = window.innerWidth/2;
+        var mitady = window.innerHeight/2
+            $(document).ready(function(){
+                $(document).mousemove(function(event){
+                    //$("#coordenadas").html(event.clientX+","+event.clientY)
+                    if(event.clientY < mitady-100){
+                        $("#coordenadas").html("<h1>Arriba");
+                    }
+                    if(event.clientY > mitady+100){
+                        $("#coordenadas").html("<h1>Abajo");
+                    }
+                     if(event.clientY > mitady-100 && event.clientY < mitady+100 ){
+                        $("#coordenadas").html("<h1>");
+                    }
+                     if(event.clientX < mitadx -100){
+                        $("#coordenadas2").html("<h1>Izquierda");
+                    }
+                    if(event.clientX > mitadx + 100){
+                        $("#coordenadas2").html("<h1>Derecha");
+                    }
+                    if(event.clientX > mitadx - 100 && event.clientX < mitadx + 100){
+                        $("#coordenadas2").html("<h1>");
+                    }
+                })
+            })
+        </script>
+    </body>
+</html>

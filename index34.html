@@ -1,0 +1,100 @@
+<html>
+    <head>
+        <script src="lib/three.min.js"></script>
+        <script src="lib/CanvasRenderer.js"></script>
+        <script src="lib/Projector.js"></script>
+        <script src="lib/jquery-3.1.1.min.js"></script>
+        <script src="lib/OBJLoader.js"></script>
+        <script src="lib/Tween.js"></script>
+    </head>
+    <body>
+        <script>
+            
+           var micubo;
+            init();
+            animate();
+           
+            function init(){
+                // Dentro del documento, creo un elemento nuevo llamado div
+               container = document.createElement("div");
+               // Añado el contenedor al documento
+               document.body.appendChild(container)
+               // Creo una nueva camara YA en el mundo 3D
+               camera = new THREE.PerspectiveCamera(70,1.3,1,1000);
+               // Ahora le digo a la camara DONDE esta
+               camera.position.x = 0;
+               camera.position.y = 0;
+               camera.position.z = 100;
+               
+               // Ahora quiero una escena 3D - La escena 3D es la que lo recoge todo
+               escena = new THREE.Scene();
+               /*////////////////////////////////////////////////////////*/
+               // Ya tengo una camara en el mundo 3D.
+               // Ahora quiero geometria
+               cubo = new THREE.BoxGeometry(5,5,5);
+               // Al cubo le quiero poner un material
+               //material = new THREE.MeshBasicMaterial({color:0xff0000});
+               material = new THREE.MeshPhongMaterial({color:0xff0000});
+               
+               micubo = new THREE.Mesh(cubo,material);
+               micubo.position.x = 0;
+               micubo.position.y = 0;
+               micubo.position.z = 0;
+               micubo.rotation.y = Math.PI/4
+               escena.add(micubo);
+                /*////////////////////////////////////////////////////////*/
+                
+              
+               
+              // Pues vale Elias, vamos a crear una luz
+              luz = new THREE.PointLight( 0xffffff, 2, 1000 );
+              luz.position.set( 100, 100, 100 );
+                escena.add( luz );
+              
+               
+               // De los renderizadores disponibles en Three, voy a usar uno que de momento no usa aceleración 3D
+               //renderer = new THREE.CanvasRenderer();
+               renderer = new THREE.WebGLRenderer({ antialias: false });
+               // El color de fondo es gris
+               renderer.setClearColor(0xf0f0f0);
+               // Pongo el pixel aspect ratio
+               renderer.setPixelRatio(1);
+               // Le digo el tamaño de la ventana
+               renderer.setSize(800,600);
+               // Añadimos el renderizador al HTML
+               container.appendChild(renderer.domElement)
+               
+               /*///////////////////CONFIGURACION INICIAL DE LA ANIMACION///////////////////////*/
+               // Longaniza la voy usar para girar la caja en z
+               posicion = {x: 0, y: 0, z:0,longaniza: 0 };						// La posicion INICIAL de la animacion
+        		
+        		tween = new TWEEN.Tween(posicion)				// Creo una nueva animacion
+        			.to({x: 20, y: 20, z: 20,longaniza:Math.PI*2}, 2000)					// Hasta donde, y en cuanto tiempo
+        			.easing(TWEEN.Easing.Quadratic.InOut)			// El tipo de interpolacion que se realiza		
+        			.onUpdate(update);
+        			
+        			tween.start();
+               
+               /*///////////////////CONFIGURACION INICIAL DE LA ANIMACION///////////////////////*/
+            }
+            function update(){
+                micubo.position.x = posicion.x
+                micubo.position.y = posicion.y
+                micubo.position.z = posicion.z
+                micubo.rotation.y = posicion.longaniza
+            }
+            function animate(time){
+                TWEEN.update( time );
+                // Ejecuta animate de nuevo cuando puedas
+                requestAnimationFrame(animate);
+                // Ejecuta el render
+                render();
+            }
+            function render(){
+                // Esta es la linea que hace toda la magia
+                renderer.render(escena,camera);
+                
+            }
+        </script>
+    </body>
+</html>

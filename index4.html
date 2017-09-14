@@ -1,0 +1,79 @@
+<html>
+    <head>
+        <script src="lib/three.min.js"></script>
+        <script src="lib/CanvasRenderer.js"></script>
+        <script src="lib/Projector.js"></script>
+        <script src="lib/jquery-3.1.1.min.js"></script>
+        <script src="lib/OBJLoader.js"></script>
+    </head>
+    <body>
+        <script>
+           angulo = 0;
+           $(document).ready(function(){
+               $(document).click(function(){
+                   
+                 
+               })
+               
+           })
+           init()
+           animate()
+            function init(){
+                // Pre condiciones
+                   container = document.createElement("div");
+                   document.body.appendChild(container)
+                   camera = new THREE.PerspectiveCamera(70,1.3,1,10000);
+                   camera.position.x = 0;
+                   camera.position.y = 0;
+                   camera.position.z = 100;
+                    escena = new THREE.Scene();
+                // Pre condiciones
+               // Creo una luz del sol
+               var directionalLight = new THREE.DirectionalLight( 0xffffff, 20 );
+               directionalLight.position.x = 100;
+               directionalLight.position.y = 100;
+                escena.add( directionalLight )
+                
+                // Cargo una textura de ambiente
+                var path = "imagenes/pisa/";
+					var format = '.png';
+					var urls = [
+						path + 'px' + format, path + 'nx' + format,
+						path + 'py' + format, path + 'ny' + format,
+						path + 'pz' + format, path + 'nz' + format
+					];
+
+				var textureCube = new THREE.CubeTextureLoader().load( urls );
+                
+                // Bola del mundo
+                mapareflexion = THREE.ImageUtils.loadTexture("imagenes/entorno.jpg")
+                maparelieve = THREE.ImageUtils.loadTexture("imagenes/relievetierra.jpg")
+               bola = new THREE.SphereGeometry(50,100,100);
+                var mapabola = THREE.ImageUtils.loadTexture("imagenes/ColorMap.jpg");
+                materialbola = new THREE.MeshPhongMaterial({map:mapabola,envMap:textureCube,bumpMap:maparelieve,bumpScale:1});
+                 mibola = new THREE.Mesh(bola,materialbola);
+                 escena.add(mibola);
+               
+               // Post condiciones
+                   renderer = new THREE.WebGLRenderer();
+                   renderer.setClearColor(0xf0f0f0);
+                   renderer.setPixelRatio(1);
+                   renderer.setSize(800,600);
+                    container.appendChild(renderer.domElement)
+                // Post condiciones
+            }
+            
+            function animate(){
+               angulo += 0.01;
+               mibola.rotation.y = angulo
+              requestAnimationFrame(animate);
+                render();
+            }
+            function render(){
+                
+                renderer.render(escena,camera);
+                
+            }
+        </script>
+    </body>
+</html>

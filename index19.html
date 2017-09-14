@@ -1,0 +1,103 @@
+<html>
+    <head>
+        <script src="lib/three.min.js"></script>
+        <script src="lib/CanvasRenderer.js"></script>
+        <script src="lib/Projector.js"></script>
+        <script src="lib/stats.min.js"></script>
+    </head>
+    <body>
+        <script>
+            var container;
+			var camera;
+			var scene;
+			var renderer;
+			var group;          // Grupo es un grupo de elementos (movibles)
+			var particle;       // Cada una de las particulas que vamos a crear dentro de ese grupo
+			
+			init()
+			animate()
+			
+			function init(){
+			    container = document.createElement( 'div' );
+				document.body.appendChild( container );
+				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 3000 );
+				camera.position.z = 1000;
+				scene = new THREE.Scene();
+				
+			
+			    
+			    group = new THREE.Group(); // Ahora es un grupo de elementos de THREE
+			    scene.add(group);
+			    
+			    for(var i = 0;i<10000;i++){
+			     
+			    }
+			    var luzglobal = new THREE.AmbientLight( 0xffffff,2 );
+			    scene.add( luzglobal );
+			    stats = new Stats();
+				container.appendChild( stats.dom );
+			    renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+				setTimeout("dimelo()",1000)
+			}
+			var multiplicador = 0.99
+			var multiplicamaterial = 1.1;
+			function dimelo(){
+			    //console.log(group.children[1].material.color)
+			}
+			var program = function ( context ) {
+					context.beginPath();
+					context.arc( 0, 0, 4, 0, Math.PI*2, true );
+					context.fill();
+				};
+			function animate() {
+			    if(group.children.length > 1200){multiplicador = 1.2;}
+			    //console.log(group.children.length)
+			    for(var j = 0;j < group.children.length;j++){
+			        /*group.children[j].position.x += (Math.random()-0.5)*3
+			        group.children[j].position.y -= (Math.random()-0.5)*3
+			        group.children[j].position.z -= (Math.random()-0.5)*3*/
+			        group.children[j].position.x *= multiplicador
+			        group.children[j].position.y *= multiplicador
+			        group.children[j].position.z *= multiplicador
+			        //group.children[j].material.color *= multiplicamaterial;
+			        group.children[j].material.color['r'] *= 1.01
+			        group.children[j].material.color['g'] *= 0.99
+			        group.children[j].material.color['b'] *= 0.99
+			        
+			    }
+			    	
+			    // Material especial para Sprites de particulas
+			        /*var material = new THREE.SpriteCanvasMaterial( {
+						color: Math.random() * 0x808008 + 0x808080,
+						program: program
+					} );*/
+					var mitextura = THREE.ImageUtils.loadTexture("log.png");
+					var material = new THREE.SpriteMaterial( {
+						 map:mitextura,color: 0x080808*Math.random(),program: program
+					} );
+					//var material = new THREE.MeshPhongMaterial({color:0xff0000})
+					
+					particle = new THREE.Sprite( material );
+					particle.position.x = Math.random() * 2000 - 1000;
+					particle.position.y = Math.random() * 2000 - 1000;
+					particle.position.z = Math.random() * 2000 - 1000;
+					particle.scale.x = particle.scale.y = Math.random() * 20 + 0;
+					group.add( particle );
+					
+				requestAnimationFrame( animate );
+				render();
+				stats.update();
+			}
+			function render() {
+				
+				camera.lookAt( scene.position );
+				group.rotation.x += 0.001;
+				group.rotation.y += 0.002;
+				renderer.render( scene, camera );
+			}
+        </script>
+    </body>
+</html>

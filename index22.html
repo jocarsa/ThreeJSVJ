@@ -1,0 +1,131 @@
+<html>
+    <head>
+        <script src="lib/three.min.js"></script>
+         <script src="lib/CanvasRenderer.js"></script>
+        <script src="lib/Projector.js"></script>
+        <script src="lib/stats.min.js"></script>
+        <script src="lib/physi.js"></script>
+         <script src="lib/OBJLoader.js"></script>
+    </head>
+    <body>
+        <script>
+            Physijs.scripts.worker = 'lib/physijs_worker.js';
+	        Physijs.scripts.ammo = 'ammo.js';
+             var container;
+			var camera;
+			var scene;
+			var renderer;
+			
+			init()
+			animate()
+			
+			function init(){
+			    container = document.createElement( 'div' );
+				document.body.appendChild( container );
+				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 3000 );
+				camera.position.z = 60;
+				camera.position.y = 20;
+				camera.rotation.x = 0-Math.PI/10
+				//scene = new THREE.Scene();
+				scene = new Physijs.Scene({fixedTimeStep:1/120})
+				scene.setGravity(new THREE.Vector3(0,-10,0));
+			    stats = new Stats();
+			    
+			    
+			    // Añado un par de elementos
+			    
+			     cubo = new THREE.BoxGeometry(1,1,1);
+			      //material = new THREE.MeshPhongMaterial({color:0xff0000});
+			      material = new Physijs.createMaterial(
+			          new THREE.MeshPhongMaterial({color:0xff0000}),
+			          0.4,
+			          0.4
+			          );
+			       micubo = new Physijs.BoxMesh(cubo,material);
+                   micubo.position.x = 0;
+                   micubo.position.y = 20;
+                   micubo.position.z = 0;
+                   micubo.rotation.y = Math.PI/9
+                   micubo.rotation.z = Math.PI/7
+                   micubo.rotation.x = Math.PI/3
+                   scene.add(micubo);
+                   //micubo.visible = false;
+                   
+			    
+			     /*/////////////AQUI VOY A IMPORTAR UNA LIBRERIA OBJ/////////////*/
+			     materialmono = new Physijs.createMaterial(
+			          new THREE.MeshPhongMaterial({color:0xff0000}),
+			          0.4,
+			          0.4
+			          );
+                   // Creo un gestor de carga (si os fijais mas abajo vereis que es necesario)
+                   var manager = new THREE.LoadingManager();
+                   // Creo un nuevo material
+                   material4 = new THREE.MeshPhongMaterial({color:0xff0000});
+                   // Sobre el gestor, cargo un cargador de OBJ
+                   var loader = new THREE.OBJLoader(manager)
+                   // Sobre el cargador, cargo el modelo concreto OBJ
+                   loader.load("modelos/esferaconvexa.obj",function(object){
+                       object.traverse( function ( child ) {
+    						if ( child instanceof THREE.Mesh ) {
+    						    // Si es hijo de malla 3D, aplicale este material
+    							child.material = material4;
+    							monodinamico = new THREE.Mesh(child,materialmono);
+    							
+    						}
+    					} );
+    					// Transforma el modelo 
+    					
+    					miobj = new Physijs.ConvexMesh(monodinamico,materialmono); 
+    					scene.add(miobj)
+    					
+    					//scene.add(materialmono)
+                   },onProgress,onError)
+                   // Esto es algo que ejecutamos mientras se carga
+                   function onProgress(){}
+                   // Esto se lanza si hay algun error en la carga
+                   function onError(){}
+               /*/////////////AQUI VOY A IMPORTAR UNA LIBRERIA/////////////*/
+                   
+                   suelo = new THREE.BoxGeometry(55,5,55);
+			       materialsuelo = new Physijs.createMaterial(
+			          new THREE.MeshPhongMaterial({color:0xffffff}),
+			          0.4,
+			          0.4
+			          );
+			       misuelo = new Physijs.BoxMesh(suelo,materialsuelo,0);
+                   misuelo.position.x = 0;
+                   misuelo.position.y = 0;
+                   misuelo.position.z = 0;
+                   misuelo.rotation.y = Math.PI/4
+                   scene.add(misuelo);
+                   
+                   luz = new THREE.PointLight( 0xffffff, 2, 1000 );
+                luz.position.set( 100, 100, 100 );
+                scene.add( luz );
+                
+                 ambiente = new THREE.AmbientLight( 0xffffff, 0.5 );
+               
+                scene.add( ambiente );
+			    
+				container.appendChild( stats.dom );
+			    renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+				}
+				
+			function animate() {
+			    scene.simulate();
+				requestAnimationFrame( animate );
+				render();
+				stats.update();
+			}
+			function render() {
+				
+				
+				renderer.render( scene, camera );
+			}
+        </script>
+    </body>
+</html>

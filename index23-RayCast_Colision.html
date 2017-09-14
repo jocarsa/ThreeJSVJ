@@ -1,0 +1,96 @@
+<html>
+    <head>
+        <script src="lib/three.min.js"></script>
+         <script src="lib/CanvasRenderer.js"></script>
+        <script src="lib/Projector.js"></script>
+        <script src="lib/stats.min.js"></script>
+        
+         <script src="lib/OBJLoader.js"></script>
+    </head>
+    <body>
+        <script>
+            
+             var container;
+			var camera;
+			var scene;
+			var renderer;
+			var micubo;
+			var micubo2;
+			var objetos = [];
+			init()
+			animate()
+			 document.addEventListener( 'mousedown', raton );
+			 
+			 
+			function init(){
+			    container = document.createElement( 'div' );
+				document.body.appendChild( container );
+				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 3000 );
+				camera.position.z = 60;
+				camera.position.y = 20;
+				camera.rotation.x = 0-Math.PI/10
+				scene = new THREE.Scene();
+				
+			    stats = new Stats();
+			    
+			    var caja = new THREE.BoxGeometry(5,5,5);
+			    var material = new THREE.MeshPhongMaterial({color:0xff0000})
+			    micubo = new THREE.Mesh(caja,material);
+			    scene.add(micubo)
+			    
+			    var caja2 = new THREE.BoxGeometry(5,5,5);
+			    var material2 = new THREE.MeshPhongMaterial({color:0x00ff00})
+			    micubo2 = new THREE.Mesh(caja2,material2);
+			    micubo2.position.x = 10;
+			    scene.add(micubo2)
+			    
+			    objetos.push(micubo)
+			    objetos.push(micubo2)
+                   
+                   luz = new THREE.PointLight( 0xffffff, 2, 1000 );
+                luz.position.set( 100, 100, 100 );
+                scene.add( luz );
+                
+                 ambiente = new THREE.AmbientLight( 0xffffff, 0.5 );
+               
+                scene.add( ambiente );
+			    
+				container.appendChild( stats.dom );
+			    renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+				}
+				
+				function raton(event){
+				    event.preventDefault();
+				    var rayo = new THREE.Raycaster();		// Vacio
+				    var raton3D = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1,   
+                                    -( event.clientY / window.innerHeight ) * 2 + 1,  
+                                    0.5 );
+				    rayo.setFromCamera(raton3D,camera);
+				    
+				    // Es cierto que el rayo esta intersectando con algun objeto?
+				    var intersecciones = rayo.intersectObjects(objetos);
+				    // En el caso de que sea cierto
+				     if ( intersecciones.length > 0 ) {
+                       // Del PRIMER objeto con el que hayas colisionado, cambiale el color
+                       intersecciones[0].object.material.color.setHex(0xffff00);
+                    }
+				    
+				    
+				}
+			function animate() {
+			    
+				requestAnimationFrame( animate );
+				render();
+				stats.update();
+			}
+			function render() {
+				
+				
+				renderer.render( scene, camera );
+			}
+        </script>
+    </body>
+</html>

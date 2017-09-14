@@ -1,0 +1,116 @@
+# Blender MTL File: 'casa.blend'
+# Material Count: 12
+
+newmtl Aluminium
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.549020 0.549020 0.549020
+Ks 0.500000 0.500000 0.500000
+Ni -1.000000
+d 1.000000
+illum 2
+
+newmtl __Charcoal_1
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.168628 0.168628 0.168628
+Ks 0.500000 0.500000 0.500000
+Ni -1.000000
+d 1.000000
+illum 2
+
+newmtl __Cladding_Siding_Tan_
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni -1.000000
+d 1.000000
+illum 2
+map_Kd model\\__Cladding_Siding_Tan_.jpg
+
+newmtl __Metal_Aluminum_Anodized_
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.407843 0.325490 0.219608
+Ks 0.500000 0.500000 0.500000
+Ni -1.000000
+d 1.000000
+illum 2
+
+newmtl __Metal_Aluminum_Anodized_1
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni -1.000000
+d 1.000000
+illum 2
+map_Kd model\\__Metal_Aluminum_Anodized_1.jpg
+
+newmtl __Metal_Aluminum_Anodized_1_1
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni -1.000000
+d 1.000000
+illum 2
+map_Kd model\\__Metal_Aluminum_Anodized_1_1.jpg
+
+newmtl __Translucent_Glass_Gray_
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.529412 0.529412 0.529412
+Ks 0.500000 0.500000 0.500000
+Ni -1.000000
+d 1.000000
+illum 2
+
+newmtl __Translucent_Glass_Gray_1
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.501961 0.501961 0.501961
+Ks 0.500000 0.500000 0.500000
+Ni -1.000000
+d 1.000000
+illum 2
+
+newmtl __Vegetation_Grass_Artificial_
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni -1.000000
+d 1.000000
+illum 2
+map_Kd model\\__Vegetation_Grass_Artificial_.jpg
+
+newmtl material
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni -1.000000
+d 1.000000
+illum 2
+
+newmtl material_0
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.643137 0.698039 0.733333
+Ks 0.500000 0.500000 0.500000
+Ni -1.000000
+d 1.000000
+illum 2
+
+newmtl trees
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni -1.000000
+d 0.000000
+illum 2
+map_Kd model\\trees.png
+map_d model\\trees.png

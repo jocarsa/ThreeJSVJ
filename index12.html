@@ -1,0 +1,258 @@
+<html>
+    <head>
+        <script src="lib2/three.min.js"></script>
+        <script src="lib2/CanvasRenderer.js"></script>
+        <script src="lib/jquery-3.1.1.min.js"></script>
+        
+        <script src="lib2/Projector.js"></script>
+        <script src="lib2/OBJLoader.js"></script>
+        <!-- Librerias especificas para SSAO -->
+        <script src="lib2/SSAOShader.js"></script>
+		<script src="lib2/CopyShader.js"></script>
+		<script src="lib2/RenderPass.js"></script>
+		<script src="lib2/ShaderPass.js"></script>
+		<script src="lib2/MaskPass.js"></script>
+		<script src="lib2/EffectComposer.js"></script>
+		<!-- Librerias especificas para SSAO -->
+    </head>
+    <body>
+        <script>
+            var angulo = 0;
+            var posx = 0;
+            var posz = 0;
+            var posy = 0;
+            // Variables para SSAO
+            
+            var depthMaterial, effectComposer, depthRenderTarget;
+			var ssaoPass;
+			var group;
+			var depthScale = 1.0;
+			var postprocessing = { enabled : true, renderMode: 0 }; // renderMode: 0('framebuffer'), 1('onlyAO')
+			
+			// Variables para SSAO
+            init();
+            animate();
+            $(document).ready(function(){
+             $(document).keydown(function(event){
+                    console.log("tecla")
+                    if ( event.which == 37 ) {
+                         posx--;
+                      }
+                       if ( event.which == 39 ) {
+                         posx++
+                      }
+                      if ( event.which == 38 ) {
+                         posz++
+                      }
+                      if ( event.which == 40 ) {
+                         posz--
+                      }
+                    
+                })
+            })
+            function init(){
+                // Dentro del documento, creo un elemento nuevo llamado div
+               container = document.createElement("div");
+               // Añado el contenedor al documento
+               document.body.appendChild(container)
+               // Creo una nueva camara YA en el mundo 3D
+               camera = new THREE.PerspectiveCamera(70,1.3,1,1000);
+               // Ahora le digo a la camara DONDE esta
+               camera.position.x = 0;
+               camera.position.y = 0;
+               camera.position.z = 100;
+               
+               // Ahora quiero una escena 3D - La escena 3D es la que lo recoge todo
+               escena = new THREE.Scene();
+               /*////////////////////////////////////////////////////////*/
+               // Ya tengo una camara en el mundo 3D.
+               // Ahora quiero geometria
+               cubo = new THREE.BoxGeometry(15,15,15);
+               // Al cubo le quiero poner un material
+               //material = new THREE.MeshBasicMaterial({color:0xff0000});
+               material = new THREE.MeshPhongMaterial({color:0xffffff});
+               
+               micubo = new THREE.Mesh(cubo,material);
+               micubo.position.x = 0;
+               micubo.position.y = 0;
+               micubo.position.z = 0;
+               micubo.rotation.y = Math.PI/4
+               micubo.castShadow = true;
+               micubo.receiveShadow = true;
+               escena.add(micubo);
+                /*////////////////////////////////////////////////////////*/
+                
+                /*////////////////////////////////////////////////////////*/
+               // Ya tengo una camara en el mundo 3D.
+               // Ahora quiero geometria
+               cubo2 = new THREE.BoxGeometry(200,10,200);
+               // Al cubo le quiero poner un material
+               //material = new THREE.MeshBasicMaterial({color:0xff0000});
+               material2 = new THREE.MeshPhongMaterial({color:0xffffff});
+               
+               micubo2 = new THREE.Mesh(cubo2,material2);
+               micubo2.position.x = 0;
+               micubo2.position.y = -45;
+               micubo2.position.z = 0;
+               micubo2.rotation.y = Math.PI/4
+               micubo2.castShadow = true;
+               micubo2.receiveShadow = true;
+               escena.add(micubo2);
+                /*////////////////////////////////////////////////////////*/
+                
+                 /*////////////////////////////////////////////////////////*/
+               // Ya tengo una camara en el mundo 3D.
+               // Ahora quiero geometria
+               esfera = new THREE.SphereGeometry( 15, 32, 32 )
+               // Al cubo le quiero poner un material
+               //material = new THREE.MeshBasicMaterial({color:0xff0000});
+               material3 = new THREE.MeshPhongMaterial({color:0xffffff});
+               
+               miesfera = new THREE.Mesh(esfera,material3);
+               miesfera.position.x = 0;
+               miesfera.position.y = -35;
+               miesfera.position.z = 0;
+               miesfera.rotation.y = Math.PI/4
+               miesfera.castShadow = true;
+               miesfera.receiveShadow = true;
+               escena.add(miesfera);
+                /*////////////////////////////////////////////////////////*/
+               
+               /*/////////////AQUI VOY A IMPORTAR UNA LIBRERIA OBJ/////////////*/
+                   // Creo un gestor de carga (si os fijais mas abajo vereis que es necesario)
+                   var manager = new THREE.LoadingManager();
+                   // Creo un nuevo material
+                   material4 = new THREE.MeshPhongMaterial({color:0xffffff});
+                   // Sobre el gestor, cargo un cargador de OBJ
+                   var loader = new THREE.OBJLoader(manager)
+                   // Sobre el cargador, cargo el modelo concreto OBJ
+                   loader.load("modelos/suzanne.obj",function(object){
+                       object.traverse( function ( child ) {
+    						if ( child instanceof THREE.Mesh ) {
+    						    // Si es hijo de malla 3D, aplicale este material
+    							child.material = material4;
+    						}
+    					} );
+    					// Transforma el modelo 
+    					
+    					object.position.x = 0;
+    					object.position.y = -20;
+    					object.position.z = 0;
+    					object.scale.x = 10;
+    					object.scale.y = 10;
+    					object.scale.z = 10;
+    				    object.castShadow = true;
+                        object.receiveShadow = true;
+    					mono = object
+    					// Añadelo a la escena
+    					escena.add(mono);
+                   },onProgress,onError)
+                   // Esto es algo que ejecutamos mientras se carga
+                   function onProgress(){}
+                   // Esto se lanza si hay algun error en la carga
+                   function onError(){}
+               /*/////////////AQUI VOY A IMPORTAR UNA LIBRERIA/////////////*/
+               
+              // Pues vale Elias, vamos a crear una luz
+              luz = new THREE.SpotLight( 0xffffff, 0.8, 1000 );
+              luz.position.set( 100, 100, 100 );
+              luz.castShadow = true;
+                    luz.shadow.mapSize.width = 4096;
+                    luz.shadow.mapSize.height = 4096;
+                    luz.shadow.camera.near = 1;
+                    luz.shadow.camera.far = 1;
+                    luz.shadow.camera.fov = 30;
+                    luz.penumbra = 0.4;
+                escena.add( luz );
+                
+                 // Pues vale Elias, vamos a crear una luz
+              luzambiental = new THREE.AmbientLight( 0xffffff,0.2 );
+             
+                escena.add( luzambiental );
+              
+               
+               // De los renderizadores disponibles en Three, voy a usar uno que de momento no usa aceleración 3D
+               //renderer = new THREE.CanvasRenderer();
+               renderer = new THREE.WebGLRenderer();
+               // El color de fondo es gris
+               renderer.setClearColor(0xf0f0f0);
+               // Pongo el pixel aspect ratio
+               renderer.setPixelRatio(1);
+               // Le digo el tamaño de la ventana
+               renderer.setSize(800,600);
+               // Añadimos el renderizador al HTML
+                renderer.shadowMap.enabled = true;
+			renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+               container.appendChild(renderer.domElement)
+               initPostprocessing();
+            }
+            function initPostprocessing() {
+
+				// Setup render pass
+				var renderPass = new THREE.RenderPass( escena, camera );
+
+				// Setup depth pass
+				var depthShader = THREE.ShaderLib[ "depthRGBA" ];
+				var depthUniforms = THREE.UniformsUtils.clone( depthShader.uniforms );
+
+				depthMaterial = new THREE.ShaderMaterial( { fragmentShader: depthShader.fragmentShader, vertexShader: depthShader.vertexShader,
+					uniforms: depthUniforms, blending: THREE.NoBlending } );
+
+				var pars = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter };
+				depthRenderTarget = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, pars );
+
+				// Setup SSAO pass
+				ssaoPass = new THREE.ShaderPass( THREE.SSAOShader );
+				ssaoPass.renderToScreen = true;
+				//ssaoPass.uniforms[ "tDiffuse" ].value will be set by ShaderPass
+				ssaoPass.uniforms[ "tDepth" ].value = depthRenderTarget;
+				ssaoPass.uniforms[ 'size' ].value.set( window.innerWidth, window.innerHeight );
+				ssaoPass.uniforms[ 'cameraNear' ].value = camera.near;
+				ssaoPass.uniforms[ 'cameraFar' ].value = camera.far;
+				ssaoPass.uniforms[ 'onlyAO' ].value = ( postprocessing.renderMode == 1 );
+				ssaoPass.uniforms[ 'aoClamp' ].value = 0.6;
+				ssaoPass.uniforms[ 'lumInfluence' ].value = 0.6;
+
+				// Add pass to effect composer
+				effectComposer = new THREE.EffectComposer( renderer );
+				effectComposer.addPass( renderPass );
+				effectComposer.addPass( ssaoPass );
+
+				
+			}
+            function animate(){
+               //mono.rotation.x = angulo;
+               //mono.rotation.y = angulo;
+                miesfera.position.x = posx;
+                miesfera.position.z = posz;
+                // Cada vez que pases por aqui aumenta un poco el angulo
+                angulo += 0.01;
+                // Y ahora actualizame la rotación de la caja
+                micubo.rotation.y = angulo;
+                micubo.rotation.x = angulo;
+                // Ejecuta animate de nuevo cuando puedas
+                requestAnimationFrame(animate);
+                // Ejecuta el render
+                render();
+            }
+            function render(){
+                // Esta es la linea que hace toda la magia
+                if ( postprocessing.enabled ) {
+
+					// Render depth into depthRenderTarget
+					escena.overrideMaterial = depthMaterial;
+					renderer.render( escena, camera, depthRenderTarget, true );
+
+					// Render renderPass and SSAO shaderPass
+					escena.overrideMaterial = null;
+					effectComposer.render();
+
+				} else {
+					renderer.render(escena,camera);
+				}
+                
+                
+            }
+        </script>
+    </body>
+</html>

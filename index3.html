@@ -1,0 +1,215 @@
+<html>
+    <head>
+        <script src="lib/three.min.js"></script>
+        <script src="lib/CanvasRenderer.js"></script>
+        <script src="lib/Projector.js"></script>
+        <script src="lib/jquery-3.1.1.min.js"></script>
+        <script src="lib/OBJLoader.js"></script>
+    </head>
+    <body>
+        <script>
+            var camarax = 0;
+            var camaray = 0;
+            var radiocamara = 100;
+            var angulocamara = 0;
+           
+            setTimeout("animate()",1000);
+            var avioncito = new THREE.Mesh();
+            var gravedad = 0.01;
+            var velocidady = 0;
+            var angulozavion = 0;
+            var superobjeto = new THREE.Object3D();
+            var objmaceta = new THREE.Object3D();
+            var objavion = new THREE.Object3D();
+            var gemas = new Array()
+            for(var i = 0;i<50;i++){
+                gemas[i] = new THREE.Mesh();
+            }
+            
+            
+             init();
+           $(document).ready(function(){
+               $(document).click(function(){
+                   
+                   velocidady = -0.6;
+               })
+               
+           })
+           
+            function init(){
+                // Condiciones iniciales
+                   container = document.createElement("div");
+                   document.body.appendChild(container)
+                   camera = new THREE.PerspectiveCamera(70,1.3,1,10000);
+                   camera.position.x = 0;
+                   camera.position.y = -20;
+                   camera.position.z = 100;
+                    escena = new THREE.Scene();
+                  luz = new THREE.SpotLight( 0xffffff );
+                  luz.position.set( 50, 50, 50 );
+                  luz.castShadow = true;
+                    luz.shadow.mapSize.width = 4096;
+                    luz.shadow.mapSize.height = 4096;
+                    luz.shadow.camera.near = 1;
+                    luz.shadow.camera.far = 1;
+                    luz.shadow.camera.fov = 30;
+                    luz.penumbra = 0.4;
+                    escena.add( luz );
+                    var ambiental = new THREE.AmbientLight( 0x404040 ); // soft white light
+                    escena.add( ambiental );
+                
+               // Crearme un terreno
+                var plano = new THREE.PlaneGeometry(100,100,50,50);
+                var texturamontanas = THREE.ImageUtils.loadTexture("imagenes/montana.png");
+                var texturaterreno = THREE.ImageUtils.loadTexture("imagenes/terreno.png");
+                var material = new THREE.MeshPhongMaterial({map:texturaterreno,bumpMap:texturamontanas,displacementMap:texturamontanas,displacementScale:60})
+                var miplano = new THREE.Mesh(plano,material);
+                miplano.rotation.x = 0-Math.PI/2
+                miplano.position.y = -40;
+                
+                objmaceta.add(miplano);
+                
+               /*////////////////////////////ESFERA DEL CIELO////////////////////////////*/
+                cielo = new THREE.SphereGeometry(1000,25,25);
+                var mapacielo = THREE.ImageUtils.loadTexture("imagenes/panorama4.jpg");
+                materialcielo = new THREE.MeshBasicMaterial({map:mapacielo});
+                materialcielo.side = THREE.DoubleSide;
+                 micielo = new THREE.Mesh(cielo,materialcielo);
+                 objmaceta.add(micielo);
+                
+                /*////////////////////////////ESFERA DEL CIELO////////////////////////////*/
+                
+               /*/////////////AQUI VOY A IMPORTAR UNA LIBRERIA OBJ/////////////*/
+                   // Creo un gestor de carga (si os fijais mas abajo vereis que es necesario)
+                   var manager = new THREE.LoadingManager();
+                   // Creo un nuevo material
+                   material4 = new THREE.MeshPhongMaterial({color:0xffffff});
+                   // Sobre el gestor, cargo un cargador de OBJ
+                   var loader = new THREE.OBJLoader(manager)
+                   // Sobre el cargador, cargo el modelo concreto OBJ
+                   loader.load("imagenes/ball.obj",function(object){
+                       object.traverse( function ( child ) {
+    						if ( child instanceof THREE.Mesh ) {
+    						    // Si es hijo de malla 3D, aplicale este material
+    							child.material = material4;
+    						}
+    					} );
+    					// Transforma el modelo 
+    					
+    					object.position.x = 0;
+    					object.position.y = -65;
+    					object.position.z = 0;
+    					object.scale.x = 70;
+    					object.scale.y = 70;
+    					object.scale.z = 70;
+    					mono = object
+    					// Añadelo a la escena
+    					objmaceta.add(mono);
+                   },onProgress,onError)
+                   // Esto es algo que ejecutamos mientras se carga
+                   function onProgress(){}
+                   // Esto se lanza si hay algun error en la carga
+                   function onError(){}
+               /*/////////////AQUI VOY A IMPORTAR UNA LIBRERIA/////////////*/
+               
+               for(var i = 0;i<50;i++){
+                   var manager = new THREE.LoadingManager();
+                   material4 = new THREE.MeshPhongMaterial({color:0xffffff});
+                   var loader = new THREE.OBJLoader(manager)
+                   loader.load("imagenes/ball.obj",function(object){
+                       object.traverse( function ( child ) {
+    						if ( child instanceof THREE.Mesh ) {
+    							child.material = material4;
+    						}
+    					} );
+    					var angulo = Math.random()*2*Math.PI
+    					var distancia = 50;
+    					object.position.x = Math.sin(angulo)*distancia;
+    					object.position.z = Math.cos(angulo)*distancia;
+    					object.position.y = Math.random()*100-50;
+    					gemas[i] = object
+    					objmaceta.add(gemas[i]);
+                   },onProgress,onError)
+            }
+                
+                /*/////////////AQUI VOY A IMPORTAR UNA LIBRERIA OBJ/////////////*/
+                   // Creo un gestor de carga (si os fijais mas abajo vereis que es necesario)
+                   var manager2 = new THREE.LoadingManager();
+                   // Creo un nuevo material
+                   materialavion = new THREE.MeshPhongMaterial({color:0xffffff});
+                   // Sobre el gestor, cargo un cargador de OBJ
+                   var loader2 = new THREE.OBJLoader(manager2)
+                   // Sobre el cargador, cargo el modelo concreto OBJ
+                   loader2.load("imagenes/avion3.obj",function(object2){
+                       object2.traverse( function ( child ) {
+    						if ( child instanceof THREE.Mesh ) {
+    						    // Si es hijo de malla 3D, aplicale este material
+    							child.material = materialavion;
+    						}
+    					} );
+    					// Transforma el modelo 
+    					
+    					
+    					object2.scale.x = 1;
+    					object2.scale.y = 1;
+    					object2.scale.z = 1;
+    				    avioncito = object2
+    				    console.log(avioncito);
+    					// Añadelo a la escena
+    					objavion.add(avioncito);
+                   },onProgress,onError)
+                   // Esto es algo que ejecutamos mientras se carga
+                   function onProgress(){}
+                   // Esto se lanza si hay algun error en la carga
+                   function onError(){}
+                   escena.add(objmaceta)
+                   objavion.position.z = 50;
+                   escena.add(objavion)
+               /*/////////////AQUI VOY A IMPORTAR UNA LIBRERIA/////////////*/
+                
+                // De los renderizadores disponibles en Three, voy a usar uno que de momento no usa aceleración 3D
+               //renderer = new THREE.CanvasRenderer();
+               renderer = new THREE.WebGLRenderer();
+               // El color de fondo es gris
+               renderer.setClearColor(0xf0f0f0);
+               // Pongo el pixel aspect ratio
+               renderer.setPixelRatio(1);
+               // Le digo el tamaño de la ventana
+               renderer.setSize(800,600);
+               
+               // Activo las sombras
+               renderer.shadowMap.enabled = true;
+			renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+			// Añadimos el renderizador al HTML
+               container.appendChild(renderer.domElement)
+               
+               
+            }
+            var contador;
+            function animate(){
+                contador++
+                escena.remove(gemas[contador])
+                angulocamara -= 0.01
+                angulozavion += 0.01
+                
+                 objmaceta.rotation.y = angulocamara
+                 
+                objavion.position.z
+                //objavion.rotation.y = 0-angulocamara;
+                objavion.rotation.y = 0-Math.PI/2
+                avioncito.rotation.x = 0-velocidady;
+               
+                velocidady += gravedad; 
+                avioncito.position.y = avioncito.position.y-velocidady;
+                //console.log(giro);
+              requestAnimationFrame(animate);
+                render();
+            }
+            function render(){
+                
+                renderer.render(escena,camera);
+                
+            }
+        </script>
+    </body>
+</html>

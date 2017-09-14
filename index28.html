@@ -1,0 +1,57 @@
+<html>
+    <head>
+        <style>
+            canvas{border:1px solid black;}
+        </style>
+    </head>
+    <body>
+        <div id="demo"></div>
+        <canvas width=512 height=512></canvas>
+        <script>
+        
+        // Quiero saber cuales son las coordenadas en el momento de iniciar este juego
+        var latinicial = 0;
+        var loninicial = 0;
+        
+        
+        
+            var x = document.getElementById("demo");
+            
+            getLocation2();
+            
+            function getLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(showPosition);
+                } else {
+                    x.innerHTML = "Geolocation is not supported by this browser.";
+                }
+            }
+            function getLocation2() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(damedatos);
+                } else {
+                    x.innerHTML = "Geolocation is not supported by this browser.";
+                }
+            }
+            function showPosition(position) {
+                x.innerHTML = "Latitude: " + position.coords.latitude + 
+                "<br>Longitude: " + position.coords.longitude; 
+            }
+            
+            function damedatos(position){
+                latinicial = position.coords.latitude;
+                loninicial = position.coords.longitude;
+                alert("Tus datos actuales son "+latinicial+","+loninicial)
+                
+            }
+            /*
+            loop()
+            function loop(){
+               getLocation(); 
+               setTimeout("loop()",1000)
+            }*/
+            
+           
+            </script>
+    </body>
+</html>

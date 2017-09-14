@@ -1,0 +1,207 @@
+<html>
+    <head>
+        <script src="lib/three.min.js"></script>
+        <script src="lib/CanvasRenderer.js"></script>
+        <script src="lib/Projector.js"></script>
+        <script src="lib/jquery-3.1.1.min.js"></script>
+        <script src="lib/OBJLoader.js"></script>
+        <!-- Librerias solo para animacion -->
+        <script src="lib/Animation.js"></script>
+		<script src="lib/AnimationHandler.js"></script>
+		<script src="lib/KeyFrameAnimation.js"></script>
+		<!-- Ademas necesito la libreria de importacion de collada -->
+        <script src="lib/ColladaLoader.js"></script>
+    </head>
+    <body>
+        <script>
+            var angulo = 0;
+            var posx = 0;
+            var posz = 0;
+            var posy = 0;
+            // Variables para el cargador
+            var model = new THREE.Object3D();
+            var animations;
+			var kfAnimations = [ ];
+			var kfAnimationsLength = 0;
+			var loader = new THREE.ColladaLoader();
+			var lastTimestamp = 0;
+			var progress = 0;
+		
+        				var loader = new THREE.ColladaLoader();
+				loader.load( "mixamo/Survivor_A_Lusth.dae", function ( collada ) {
+				    model = collada.scene;
+					collada.scene.traverse( function ( child ) {
+                
+						if ( child instanceof THREE.SkinnedMesh ) {
+                    
+							var animation = new THREE.Animation( child, child.geometry.animation );
+							ani =  new THREE.Animation( child, child.geometry.animation );
+							animation.timeScale = 1/10;
+							animation.play();
+
+						//camera.lookAt( child.position );
+						}
+					} );
+					collada.scene.scale.x = collada.scene.scale.y = collada.scene.scale.z = 0.4; // 1/8 scale, modeled in cm
+					init()
+					animate()
+				
+				} );
+            
+            $(document).ready(function(){
+                console.log("estas en el document ready")
+             $(document).keydown(function(event){
+                    console.log("tecla")
+                    if ( event.which == 37 ) {
+                         posx--;
+                      }
+                       if ( event.which == 39 ) {
+                         posx++
+                      }
+                      if ( event.which == 38 ) {
+                         posz++
+                      }
+                      if ( event.which == 40 ) {
+                         posz--
+                      }
+                    
+                })
+            })
+            function init(){
+                // Dentro del documento, creo un elemento nuevo llamado div
+               container = document.createElement("div");
+               // Añado el contenedor al documento
+               document.body.appendChild(container)
+               // Creo una nueva camara YA en el mundo 3D
+               camera = new THREE.PerspectiveCamera(70,1.3,1,1000);
+               // Ahora le digo a la camara DONDE esta
+               camera.position.x = 0;
+               camera.position.y = 100;
+               camera.position.z = 100;
+               camera.rotation.x = 0-Math.PI/4
+               
+               // Ahora quiero una escena 3D - La escena 3D es la que lo recoge todo
+               escena = new THREE.Scene();
+                
+                
+                
+                 
+               
+               
+               
+              // Pues vale Elias, vamos a crear una luz
+              luz = new THREE.PointLight( 0xffffff, 2, 1000 );
+              luz.position.set( 100, 100, 100 );
+                escena.add( luz );
+              
+               
+               // De los renderizadores disponibles en Three, voy a usar uno que de momento no usa aceleración 3D
+               //renderer = new THREE.CanvasRenderer();
+               renderer = new THREE.WebGLRenderer();
+               // El color de fondo es gris
+               renderer.setClearColor(0xf0f0f0);
+               // Pongo el pixel aspect ratio
+               renderer.setPixelRatio(1);
+               // Le digo el tamaño de la ventana
+               renderer.setSize(800,600);
+               // Añadimos el renderizador al HTML
+               container.appendChild(renderer.domElement)
+               
+               // KeyFrame Animations
+
+				for ( var i = 0; i < kfAnimationsLength; ++i ) {
+
+					var animation = animations[ i ];
+
+					var kfAnimation = new THREE.KeyFrameAnimation( animation );
+					kfAnimation.timeScale = 1;
+					kfAnimations.push( kfAnimation );
+
+				}
+				
+				escena.add( model );
+				
+			
+					escena.add( model );
+					start();
+               
+            }
+            function start() {
+                
+                console.log("ya estoy aqui")
+				for ( var i = 0; i < kfAnimationsLength; ++i ) {
+
+					var animation = kfAnimations[i];
+
+					for ( var h = 0, hl = animation.hierarchy.length; h < hl; h++ ) {
+
+						var keys = animation.data.hierarchy[ h ].keys;
+						var sids = animation.data.hierarchy[ h ].sids;
+						var obj = animation.hierarchy[ h ];
+
+						if ( keys.length && sids ) {
+
+							for ( var s = 0; s < sids.length; s++ ) {
+
+								var sid = sids[ s ];
+								var next = animation.getNextKeyWith( sid, h, 0 );
+
+								if ( next ) next.apply( sid );
+
+							}
+
+							obj.matrixAutoUpdate = false;
+							animation.data.hierarchy[ h ].node.updateMatrix();
+							obj.matrixWorldNeedsUpdate = true;
+
+						}
+
+					}
+
+					animation.loop = false;
+					animation.play();
+
+				}
+
+			}
+            function animate( timestamp ){
+                console.log("animando")
+               var frameTime = ( timestamp - lastTimestamp ) * 0.001;
+
+				if ( progress >= 0 && progress < 48 ) {
+
+					for ( var i = 0; i < kfAnimationsLength; ++i ) {
+
+						kfAnimations[ i ].update( frameTime );
+
+					}
+
+				} else if ( progress >= 48 ) {
+
+					for ( var i = 0; i < kfAnimationsLength; ++i ) {
+
+						kfAnimations[ i ].stop();
+
+					}
+
+					progress = 0;
+					start();
+
+				}
+
+			
+
+				progress += frameTime;
+				lastTimestamp = timestamp;
+                requestAnimationFrame(animate);
+                // Ejecuta el render
+                render();
+            }
+            function render(){
+                // Esta es la linea que hace toda la magia
+                renderer.render(escena,camera);
+                
+            }
+        </script>
+    </body>
+</html>
